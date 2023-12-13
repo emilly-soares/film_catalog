@@ -55,9 +55,6 @@ export default function App() {
     movieTitle: "",
   });
 
-  const totalMovies = useMemo(() => {
-    return movies.length;
-  }, [movies]);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
@@ -129,6 +126,10 @@ export default function App() {
     }
   }, []);
 
+  const memoizedMovies = useMemo(() => {
+    return movies;
+  }, [movies]);
+  
   const handleRegister = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (!input.title) return;
@@ -238,7 +239,7 @@ export default function App() {
 
       <div className="card-container">
 
-        {movies.map((item, index) => (
+        {memoizedMovies.map((item, index) => (
           <section key={index} className="card">
             <h3>{item.title}</h3>
             <div className="poster" onClick={() => handleDetails(item)}>
