@@ -3,6 +3,7 @@ import "./App.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faEdit, faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 
+// Interfaces para tipos de dados
 interface EditMovie {
   enabled: boolean;
   movieTitle: string;
@@ -19,25 +20,30 @@ interface Movie {
   duration: number;
 }
 
+// Componente principal do aplicativo
 export default function App() {
 
+  // Efeito para alterar a classe do body ao rolar (scroll)
   useEffect(() => {
     const handleScroll = () => {
       const scrolledDown = window.scrollY > 100; // Altere o valor conforme necessário
       document.body.classList.toggle("scrolled-down", scrolledDown);
     };
-  
+
     window.addEventListener("scroll", handleScroll);
-  
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
-  
 
+
+  // Refs para elementos no DOM
   const inputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
+  // Ref para controlar o primeiro render
   const firstRender = useRef(true);
+  // Estado para controle de dados do formulário
   const [input, setInput] = useState<Movie>({
     title: "",
     poster: "",
@@ -49,16 +55,20 @@ export default function App() {
     duration: 0,
   });
 
+  // Estado para a lista de filmes
   const [movies, setMovies] = useState<Movie[]>([]);
+
+  // Estado para controle de edição de filme
   const [editMovie, setEditMovie] = useState<EditMovie>({
     enabled: false,
     movieTitle: "",
   });
 
-
+  // Estado para controle do modal de detalhes do filme
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
+  // Efeito para carregar filmes do armazenamento local ao iniciar
   useEffect(() => {
     const savedMovies = localStorage.getItem("movieRegister");
 
@@ -67,6 +77,7 @@ export default function App() {
     }
   }, []);
 
+  // Efeito para salvar filmes no armazenamento local
   useEffect(() => {
     if (firstRender.current) {
       firstRender.current = false;
@@ -75,6 +86,7 @@ export default function App() {
     localStorage.setItem("movieRegister", JSON.stringify(movies));
   }, [movies]);
 
+  // Função para salvar as alterações ao editar um filme
   const handleSaveEdit = useCallback(() => {
     const findIndexMovies = movies.findIndex((movie) => movie.title === editMovie.movieTitle);
     const allMovies = [...movies];
@@ -98,11 +110,13 @@ export default function App() {
     });
   }, [movies, editMovie, input]);
 
+  // Função para excluir um filme
   const handleDelete = useCallback((item: Movie) => {
     const removeMovie = movies.filter((movie) => movie.title !== item.title);
     setMovies(removeMovie);
   }, [movies]);
 
+  // Função para rolar até o início do formulário ao editar um filme
   const scrollToTop = () => {
     if (formRef.current) {
       formRef.current.scrollIntoView({
@@ -112,6 +126,7 @@ export default function App() {
     }
   };
 
+  // Função para editar um filme
   const handleEdit = useCallback((item: Movie) => {
     setInput(item);
     setEditMovie({
@@ -126,10 +141,12 @@ export default function App() {
     }
   }, []);
 
+  // Memoização da lista de filmes usando useMemo()
   const memoizedMovies = useMemo(() => {
     return movies;
   }, [movies]);
-  
+
+  // Função para adicionar ou editar um filme ao enviar o formulário
   const handleRegister = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (!input.title) return;
@@ -139,6 +156,7 @@ export default function App() {
       return;
     }
 
+    // Limpar inputs após cadastro
     setMovies((prevMovies) => [...prevMovies, input]);
     setInput({
       title: "",
@@ -152,16 +170,19 @@ export default function App() {
     });
   }, [editMovie.enabled, handleSaveEdit, input]);
 
+  // Função para exibir detalhes de um filme
   const handleDetails = useCallback((item: Movie) => {
     setSelectedMovie(item);
     setModalOpen(true);
   }, []);
 
+  // Função para fechar o modal de detalhes
   const handleCloseModal = useCallback(() => {
     setModalOpen(false);
     setSelectedMovie(null);
   }, []);
 
+  // Renderização do componente principal
   return (
 
     <div className="container">
